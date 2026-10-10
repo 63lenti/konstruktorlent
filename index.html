@@ -705,80 +705,43 @@ function initFontDropdowns() {
 // ========================================
 // ИНИЦИАЛИЗАЦИЯ ИКОНОК
 // ========================================
-async function initIcons() {
-  const container = document.getElementById('icon-list');
-  container.innerHTML = '';
-  
-  // Получаем список файлов из папки img
-  try {
-    const response = await fetch('img/');
-    const files = await response.json();
-    const folderIcons = files.map(file => ({
-      type: 'file',
-      src: `img/${file}`,
-      name: file.replace(/\.[^/.]+$/, '')
-    }));
-    
-    // Объединяем с существующими иконками
-    const allIcons = [
-      {type:'draw', name:'Колокольчик', drawFn:'bell'},
-      {type:'draw', name:'Шапочка', drawFn:'cap'},
-      {type:'draw', name:'Звезда', drawFn:'star'},
-      {type:'draw', name:'Сердце', drawFn:'heart'},
-      {type:'none', name:'Без картинки'}
-    ].concat(folderIcons);
-    
-    // Создаем кнопки для каждой иконки
-    allIcons.forEach((item, i) => {
-      const btn = document.createElement('div');
-      btn.className = 'icon-btn';
-      if (i === 0) btn.classList.add('active');
-      btn.title = item.name;
+function initIcons() {
+    // Здесь мы явно перечисляем файлы, которые точно есть в папке img
+    // Используем только английские названия, чтобы избежать проблем с кодировкой
+    const icons = [
+        'Gerb.png',
+        'Kolokolchik1.png',
+        'Kolokolchik2.png'
+    ];
 
-      if (item.type === 'none') {
-        btn.textContent = '✕';
-        btn.style.fontSize = '18px';
-        btn.style.color = '#999';
-      } else if (item.type === 'draw') {
-        const c = document.createElement('canvas');
-        c.width = 40; c.height = 40;
-        const ctx = c.getContext('2d');
-        const savedColor = state.fontColor;
-        state.fontColor = '#333';
-        drawIcon(ctx, item.drawFn, 20, 20, 32);
-        state.fontColor = savedColor;
-        btn.appendChild(c);
-      } else if (item.type === 'file') {
+    const container = document.getElementById('icons-container'); // Убедись, что ID контейнера совпадает с твоим HTML
+    
+    if (!container) {
+        console.error('Контейнер для иконок не найден! Проверь id="icons-container" в HTML');
+        return;
+    }
+
+    container.innerHTML = ''; // Очищаем контейнер
+
+    icons.forEach(iconName => {
         const img = document.createElement('img');
-        img.src = item.src;
-        img.alt = item.name;
-        btn.appendChild(img);
-        const realImg = new Image();
-        realImg.onload = () => { item.img = realImg; redraw(); };
-        realImg.src = item.src;
-      }
+        // Формируем путь. Если сайт лежит в корне (username.github.io/repo), путь такой:
+        img.src = `img/\${iconName}`; 
+        img.alt = iconName.replace('.png', '');
+        img.className = 'icon-btn'; // Класс для стилизации, если есть
+        
+        // Добавляем обработчик клика (если нужен)
+        img.addEventListener('click', () => {
+            console.log(`Выбрана иконка: \${iconName}`);
+            // Тут твой код обработки клика
+        });
 
-      btn.onclick = () => {
-        if (item.type === 'none') {
-          state.icon = null;
-        } else {
-          state.icon = item;
-          if (item.type === 'file' && !item.img) {
-            const img = new Image();
-            img.onload = () => { item.img = img; redraw(); };
-            img.src = item.src;
-          }
-        }
-        document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        redraw();
-      };
-      container.appendChild(btn);
+        container.appendChild(img);
     });
-  } catch (error) {
-    console.error('Ошибка при загрузке иконок:', error);
-  }
 }
+
+// Вызываем функцию после загрузки страницы
+document.addEventListener('DOMContentLoaded', initIcons);
 
 // ========================================
 // УСТАНОВКА РОЛИ

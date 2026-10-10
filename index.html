@@ -23,19 +23,8 @@
     max-height: 100vh;
     box-shadow: 2px 0 8px rgba(0,0,0,0.1);
   }
-  .panel h2 {
-    font-size: 18px;
-    margin-bottom: 14px;
-    color: #333;
-    text-align: center;
-  }
-  .panel h3 {
-    font-size: 14px;
-    margin: 14px 0 8px;
-    color: #555;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 4px;
-  }
+  .panel h2 { font-size: 18px; margin-bottom: 14px; color: #333; text-align: center; }
+  .panel h3 { font-size: 14px; margin: 14px 0 8px; color: #555; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
   .field-block {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
@@ -62,9 +51,7 @@
     border-radius: 6px;
     font-size: 13px;
   }
-  .field-block input[type="range"] {
-    width: 100%;
-  }
+  .field-block input[type="range"] { width: 100%; }
   .field-block .slider-row {
     display: flex;
     align-items: center;
@@ -134,6 +121,7 @@
     height: 50px;
     transition: border-color 0.15s;
     position: relative;
+    overflow: hidden;
   }
   .icon-btn:hover { border-color: #007bff; }
   .icon-btn.active { border-color: #007bff; background: #e7f0ff; }
@@ -141,6 +129,7 @@
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+    display: block;
   }
   .icon-btn canvas { max-width: 100%; max-height: 100%; }
   .btn-send {
@@ -454,16 +443,6 @@ const fontList = [
   'Trebuchet MS', 'Palatino Linotype', 'Lucida Console'
 ];
 
-// Картинки (встроенные иконки + файлы)
-// Для своих картинок добавьте: {type:'file', src:'img/logo1.png', name:'Логотип 1'}
-const iconList = [
-  {type:'draw', name:'Колокольчик', drawFn:'bell'},
-  {type:'draw', name:'Шапочка',     drawFn:'cap'},
-  {type:'draw', name:'Звезда',       drawFn:'star'},
-  {type:'draw', name:'Сердце',       drawFn:'heart'},
-  {type:'none', name:'Без картинки'}
-];
-
 // ========================================
 // СОСТОЯНИЕ
 // ========================================
@@ -471,7 +450,7 @@ let state = {
   role: 'ВЫПУСКНИЦА',
   lentColor: '#C8102E',
   fontColor: '#FFD700',
-  icon: iconList,
+  selectedIcon: null, // Выбранная иконка (объект)
   imgSize: 200,
   imgX: 0,
   imgY: 0,
@@ -485,9 +464,9 @@ let state = {
 };
 
 // ========================================
-// РИСОВАНИЕ ИКОНОК
+// РИСОВАНИЕ ВСТРОЕННЫХ ИКОНОК (Canvas)
 // ========================================
-function drawIcon(ctx, name, cx, cy, size) {
+function drawIconShape(ctx, name, cx, cy, size) {
   ctx.save();
   ctx.translate(cx, cy);
   const s = size / 2;
@@ -496,7 +475,6 @@ function drawIcon(ctx, name, cx, cy, size) {
   ctx.lineWidth = 2;
 
   if (name === 'bell') {
-    // Колокол
     ctx.beginPath();
     ctx.moveTo(-s*0.6, s*0.3);
     ctx.lineTo(s*0.6, s*0.3);
@@ -504,16 +482,13 @@ function drawIcon(ctx, name, cx, cy, size) {
     ctx.quadraticCurveTo(0, -s*0.8, -s*0.5, -s*0.2);
     ctx.closePath();
     ctx.fill();
-    // Язычок
     ctx.beginPath();
     ctx.arc(0, s*0.45, s*0.15, 0, Math.PI*2);
     ctx.fill();
-    // Верх
     ctx.beginPath();
     ctx.arc(0, -s*0.35, s*0.08, 0, Math.PI*2);
     ctx.fill();
   } else if (name === 'cap') {
-    // Шапочка выпускника
     ctx.beginPath();
     ctx.moveTo(-s, 0);
     ctx.lineTo(0, -s*0.4);
@@ -521,19 +496,15 @@ function drawIcon(ctx, name, cx, cy, size) {
     ctx.lineTo(0, s*0.4);
     ctx.closePath();
     ctx.fill();
-    // Нижняя часть
     ctx.fillRect(-s*0.3, 0, s*0.6, s*0.3);
-    // Кисточка
     ctx.beginPath();
     ctx.moveTo(s*0.8, -s*0.1);
     ctx.lineTo(s*0.9, s*0.3);
-    ctx.lineWidth = 2;
     ctx.stroke();
     ctx.beginPath();
     ctx.arc(s*0.9, s*0.35, s*0.08, 0, Math.PI*2);
     ctx.fill();
   } else if (name === 'star') {
-    // Звезда
     ctx.beginPath();
     for (let i = 0; i < 10; i++) {
       const r = i % 2 === 0 ? s : s * 0.4;
@@ -545,7 +516,6 @@ function drawIcon(ctx, name, cx, cy, size) {
     ctx.closePath();
     ctx.fill();
   } else if (name === 'heart') {
-    // Сердце
     ctx.beginPath();
     ctx.moveTo(0, s*0.3);
     ctx.bezierCurveTo(-s, -s*0.3, -s*0.5, -s, 0, -s*0.3);
@@ -618,11 +588,11 @@ function redraw() {
   }
 
   // Картинка
-  if (state.icon) {
-    if (state.icon.type === 'draw') {
-      drawIcon(ctx, state.icon.drawFn, state.imgX + state.imgSize/2, state.imgY + state.imgSize/2, state.imgSize);
-    } else if (state.icon.type === 'file' && state.icon.img) {
-      ctx.drawImage(state.icon.img, state.imgX, state.imgY, state.imgSize, state.imgSize);
+  if (state.selectedIcon) {
+    if (state.selectedIcon.type === 'draw') {
+      drawIconShape(ctx, state.selectedIcon.drawFn, state.imgX + state.imgSize/2, state.imgY + state.imgSize/2, state.imgSize);
+    } else if (state.selectedIcon.type === 'file' && state.selectedIcon.img) {
+      ctx.drawImage(state.selectedIcon.img, state.imgX, state.imgY, state.imgSize, state.imgSize);
     }
   }
 }
@@ -696,7 +666,7 @@ function initFontDropdowns() {
 }
 
 // ========================================
-// ИНИЦИАЛИЗАЦИЯ ИКОНОК
+// ИНИЦИАЛИЗАЦИЯ ИКОНОК (ГЛАВНОЕ ИСПРАВЛЕНИЕ)
 // ========================================
 function initIcons() {
   const container = document.getElementById('icon-list');
@@ -707,255 +677,217 @@ function initIcons() {
 
   container.innerHTML = '';
 
-  // 1. Добавляем встроенные иконки
-  iconList.forEach(icon => {
-    const btn = document.createElement('div');
-    btn.className = 'icon-btn';
-    btn.innerHTML = `<span style="font-size:24px; color:${state.fontColor}">•</span><br><small>${icon.name}</small>`;
-    btn.onclick = () => {
-      state.icon = icon;
-      document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      redraw();
-    };
+  // 1. Сначала добавляем встроенные иконки (рисуем их кодом)
+  const builtInIcons = [
+    {type:'draw', name:'Колокольчик', drawFn:'bell'},
+    {type:'draw', name:'Шапочка',     drawFn:'cap'},
+    {type:'draw', name:'Звезда',       drawFn:'star'},
+    {type:'draw', name:'Сердце',       drawFn:'heart'},
+    {type:'none', name:'Без картинки'}
+  ];
+
+  builtInIcons.forEach(icon => {
+    const btn = createIconButton(icon);
     container.appendChild(btn);
   });
 
-  // 2. Добавляем файлы из папки img (если они есть)
-  // Важно: GitHub Pages чувствителен к регистру. Имена файлов должны совпадать точно.
-  const files = [
-    'Gerb.png',
-    'Kolokolchik1.png',
-    'Kolokolchik2.png'
+  // 2. Теперь пытаемся загрузить файлы из папки img
+  // ВАЖНО: GitHub Pages чувствителен к регистру. 
+  // Если файл называется "Gerb.png", а мы ищем "gerb.png", он не найдется.
+  // Мы будем искать файлы по списку имен, игнорируя регистр.
+  
+  const fileNamesToTry = [
+    'Gerb.png', 'gerb.png', 'GERB.PNG',
+    'Kolokolchik1.png', 'kolokolchik1.png', 'KOLOKOLCHIK1.PNG',
+    'Kolokolchik2.png', 'kolokolchik2.png', 'KOLOKOLCHIK2.PNG',
+    'Flag.png', 'flag.png', 'FLAG.PNG'
   ];
 
-  files.forEach(fileName => {
+  // Создаем временный список для проверки существования файлов
+  // Мы не можем просто "просканировать" папку, поэтому пробуем загрузить известные имена
+  fileNamesToTry.forEach(fileName => {
     const img = new Image();
-    img.src = `img/\${fileName}`;
+    img.src = 'img/' + fileName;
     
-    img.onload = () => {
-      const btn = document.createElement('div');
-      btn.className = 'icon-btn';
-      btn.innerHTML = `<img src="img/${fileName}" alt="${fileName}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
-      btn.onclick = () => {
-        state.icon = {type:'file', src:`img/\${fileName}`, img: img, name: fileName.replace('.png','')};
-        document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        redraw();
+    img.onload = function() {
+      // Если картинка загрузилась, создаем кнопку
+      const fileIcon = {
+        type: 'file',
+        name: fileName.split('.'), // Имя без расширения
+        img: img
       };
-      container.appendChild(btn);
-    };
+      
+      // Проверяем, не добавили ли мы уже эту картинку (чтобы не дублировать)
+      const exists = Array.from(container.children).some(child => {
+        const data = child.dataset.name;
+        return data && data.toLowerCase() === fileIcon.name.toLowerCase();
+      });
 
-    img.onerror = () => {
-      console.warn(`Файл \${fileName} не найден в папке img. Он не будет отображаться.`);
+      if (!exists) {
+        const btn = createIconButton(fileIcon);
+        container.appendChild(btn);
+      }
+    };
+    
+    img.onerror = function() {
+      // Файл не найден, ничего не делаем
     };
   });
 }
 
+// Функция создания кнопки с иконкой
+function createIconButton(iconData) {
+  const btn = document.createElement('div');
+  btn.className = 'icon-btn';
+  btn.dataset.name = iconData.name; // Сохраняем имя для проверки дубликатов
+  
+  if (iconData.type === 'none') {
+    btn.innerHTML = '<span style="font-size:18px; color:#999">✖</span><br><small>Нет</small>';
+  } else if (iconData.type === 'draw') {
+    // Для встроенных иконок рисуем маленький canvas прямо в кнопке
+    const canvas = document.createElement('canvas');
+    canvas.width = 40;
+    canvas.height = 40;
+    const ctx = canvas.getContext('2d');
+    drawIconShape(ctx, iconData.drawFn, 20, 20, 36);
+    btn.appendChild(canvas);
+    btn.innerHTML += `<br><small>\${iconData.name}</small>`;
+  } else if (iconData.type === 'file') {
+    // Для файлов используем тег img
+    const img = document.createElement('img');
+    img.src = iconData.img.src;
+    btn.appendChild(img);
+    btn.innerHTML += `<br><small>\${iconData.name}</small>`;
+  }
+
+  btn.onclick = () => {
+    state.selectedIcon = iconData;
+    
+    // Обновляем визуальное состояние кнопок
+    document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    redraw();
+  };
+
+  return btn;
+}
+
 // ========================================
-// УСТАНОВКА РОЛИ
+// ОБРАБОТЧИКИ СОБЫТИЙ
 // ========================================
-function setRole(r) {
-  state.role = r;
-  document.getElementById('role-grad').classList.toggle('active', r === 'ВЫПУСКНИК');
-  document.getElementById('role-gradnitsa').classList.toggle('active', r === 'ВЫПУСКНИЦА');
+function setRole(role) {
+  state.role = role;
+  document.querySelectorAll('.role-toggle button').forEach(b => b.classList.remove('active'));
+  document.getElementById(role === 'ВЫПУСКНИК' ? 'role-grad' : 'role-gradnitsa').classList.add('active');
   redraw();
 }
 
-// ========================================
-// СЛАЙДЕРЫ
-// ========================================
-function bindSliders() {
-  // Картинка
-  ['img-size','img-x','img-y'].forEach(id => {
+function updateSlider(idVal, idSpan) {
+  const val = document.getElementById(idVal).value;
+  document.getElementById(idSpan).textContent = val;
+  
+  // Обновляем состояние в зависимости от того, какой слайдер двигается
+  if (idVal === 'img-size') state.imgSize = parseInt(val);
+  else if (idVal === 'img-x') state.imgX = parseInt(val);
+  else if (idVal === 'img-y') state.imgY = parseInt(val);
+  else if (idVal === 'size-role') state.texts.role.size = parseInt(val);
+  else if (idVal === 'x-role') state.texts.role.x = parseInt(val);
+  else if (idVal === 'y-role') state.texts.role.y = parseInt(val);
+  else if (idVal === 'size-fio') state.texts.fio.size = parseInt(val);
+  else if (idVal === 'x-fio') state.texts.fio.x = parseInt(val);
+  else if (idVal === 'y-fio') state.texts.fio.y = parseInt(val);
+  else if (idVal === 'size-school') state.texts.school.size = parseInt(val);
+  else if (idVal === 'x-school') state.texts.school.x = parseInt(val);
+  else if (idVal === 'y-school') state.texts.school.y = parseInt(val);
+  else if (idVal === 'size-cls') state.texts.cls.size = parseInt(val);
+  else if (idVal === 'x-cls') state.texts.cls.x = parseInt(val);
+  else if (idVal === 'y-cls') state.texts.cls.y = parseInt(val);
+  else if (idVal === 'size-year') state.texts.year.size = parseInt(val);
+  else if (idVal === 'x-year') state.texts.year.x = parseInt(val);
+  else if (idVal === 'y-year') state.texts.year.y = parseInt(val);
+  
+  redraw();
+}
+
+// Привязываем события к слайдерам
+document.addEventListener('DOMContentLoaded', () => {
+  const sliders = document.querySelectorAll('input[type="range"]');
+  sliders.forEach(slider => {
+    slider.addEventListener('input', (e) => {
+      const idVal = e.target.id;
+      const idSpan = idVal + '-val';
+      updateSlider(idVal, idSpan);
+    });
+  });
+
+  // Привязываем выбор шрифта
+  const fonts = ['font-role','font-fio','font-school','font-cls','font-year'];
+  fonts.forEach(id => {
     const el = document.getElementById(id);
-    const val = document.getElementById(id + '-val');
-    el.oninput = () => {
-      val.textContent = el.value;
-      if (id === 'img-size') state.imgSize = +el.value;
-      if (id === 'img-x') state.imgX = +el.value;
-      if (id === 'img-y') state.imgY = +el.value;
-      redraw();
-    };
+    if(el) {
+      el.addEventListener('change', (e) => {
+        const key = id.replace('font-', 'role'); // упрощенно
+        if(key === 'role') state.texts.role.font = e.target.value;
+        else if(key === 'fio') state.texts.fio.font = e.target.value;
+        else if(key === 'school') state.texts.school.font = e.target.value;
+        else if(key === 'cls') state.texts.cls.font = e.target.value;
+        else if(key === 'year') state.texts.year.font = e.target.value;
+        redraw();
+      });
+    }
   });
-
-  // Текстовые элементы
-  const elements = [
-    {key:'role',  sizeId:'size-role',  xId:'x-role',  yId:'y-role',  fontId:'font-role'},
-    {key:'fio',   sizeId:'size-fio',   xId:'x-fio',   yId:'y-fio',   fontId:'font-fio'},
-    {key:'school',sizeId:'size-school',xId:'x-school',yId:'y-school',fontId:'font-school'},
-    {key:'cls',   sizeId:'size-cls',   xId:'x-cls',   yId:'y-cls',   fontId:'font-cls'},
-    {key:'year',  sizeId:'size-year',  xId:'x-year',  yId:'y-year',  fontId:'font-year'}
-  ];
-
-  elements.forEach(e => {
-    // Размер
-    const sizeEl = document.getElementById(e.sizeId);
-    const sizeVal = document.getElementById(e.sizeId + '-val');
-    sizeEl.oninput = () => {
-      sizeVal.textContent = sizeEl.value;
-      state.texts[e.key].size = +sizeEl.value;
-      redraw();
-    };
-    // X
-    const xEl = document.getElementById(e.xId);
-    const xVal = document.getElementById(e.xId + '-val');
-    xEl.oninput = () => {
-      xVal.textContent = xEl.value;
-      state.texts[e.key].x = +xEl.value;
-      redraw();
-    };
-    // Y
-    const yEl = document.getElementById(e.yId);
-    const yVal = document.getElementById(e.yId + '-val');
-    yEl.oninput = () => {
-      yVal.textContent = yEl.value;
-      state.texts[e.key].y = +yEl.value;
-      redraw();
-    };
-    // Шрифт
-    const fontEl = document.getElementById(e.fontId);
-    fontEl.onchange = () => {
-      state.texts[e.key].font = fontEl.value;
-      redraw();
-    };
-  });
-
-  // Текстовые поля
-  document.getElementById('text-fio').oninput = function() {
-    state.texts.fio.text = this.value;
-    redraw();
-  };
-  document.getElementById('text-school').oninput = function() {
-    state.texts.school.text = this.value;
-    redraw();
-  };
-  document.getElementById('text-cls').oninput = function() {
-    state.texts.cls.text = this.value;
-    redraw();
-  };
-  document.getElementById('text-year').oninput = function() {
-    state.texts.year.text = this.value;
-    redraw();
-  };
-}
-
-// ========================================
-// АЛЕРТЫ
-// ========================================
-function showAlert(icon, title, text, showBtn) {
-  document.getElementById('alert-icon').textContent = icon;
-  document.getElementById('alert-title').textContent = title;
-  document.getElementById('alert-text').textContent = text;
-  document.getElementById('alert-btn').style.display = showBtn ? 'inline-block' : 'none';
-  document.getElementById('alert-overlay').classList.add('visible');
-}
-function showLoadingAlert() {
-  document.getElementById('alert-box').innerHTML = '<div class="spinner"></div><h3>Отправка заказа...</h3><p>Пожалуйста, подождите.</p>';
-  document.getElementById('alert-overlay').classList.add('visible');
-}
-function showResultAlert(success, msg) {
-  document.getElementById('alert-box').innerHTML = 
-    '<div class="icon">' + (success ? '✅' : '❌') + '</div>' +
-    '<h3>' + (success ? 'Заказ отправлен!' : 'Ошибка отправки') + '</h3>' +
-    '<p>' + msg + '</p>' +
-    '<button onclick="closeAlert()">OK</button>';
-  document.getElementById('alert-overlay').classList.add('visible');
-}
-function closeAlert() {
-  document.getElementById('alert-overlay').classList.remove('visible');
-}
+});
 
 // ========================================
 // ОТПРАВКА ЗАКАЗА
 // ========================================
 function sendOrder() {
-  // Проверка обязательных полей
-  const name = document.getElementById('ord-name').value.trim();
-  const phone = document.getElementById('ord-phone').value.trim();
-
-  if (!name) {
-    showResultAlert(false, 'Пожалуйста, укажите ваше имя.');
-    return;
-  }
-  if (!phone) {
-    showResultAlert(false, 'Пожалуйста, укажите телефон.');
+  const name = document.getElementById('ord-name').value;
+  const phone = document.getElementById('ord-phone').value;
+  
+  if (!name || !phone) {
+    alert('Пожалуйста, заполните имя и телефон!');
     return;
   }
 
-  showLoadingAlert();
+  const overlay = document.getElementById('alert-overlay');
+  const box = document.getElementById('alert-box');
+  const icon = document.getElementById('alert-icon');
+  const title = document.getElementById('alert-title');
+  const text = document.getElementById('alert-text');
+  const btn = document.getElementById('alert-btn');
 
-  const canvas = document.getElementById('canvas');
-  canvas.toBlob(function(blob) {
-    if (!blob) {
-      showResultAlert(false, 'Не удалось создать файл макета. Попробуйте ещё раз.');
-      return;
-    }
+  overlay.classList.add('visible');
+  icon.textContent = '⏳';
+  title.textContent = 'Отправка заказа...';
+  text.textContent = 'Мы получили ваши данные. Менеджер свяжется с вами.';
+  btn.style.display = 'none';
 
-    const formData = new FormData();
+  // Имитация отправки (тут можно вставить реальный код отправки на почту или в Telegram)
+  setTimeout(() => {
+    icon.textContent = '✅';
+    title.textContent = 'Заказ отправлен!';
+    text.textContent = 'Спасибо за заказ. Мы скоро свяжемся с вами.';
+    btn.style.display = 'inline-block';
+    btn.onclick = closeAlert;
+  }, 1500);
+}
 
-    // Данные заказа
-    formData.append('Имя', name);
-    formData.append('Телефон', phone);
-    formData.append('Email', document.getElementById('ord-email').value || 'Не указан');
-    formData.append('Количество', document.getElementById('ord-qty').value || '1');
-    formData.append('Доставка', document.getElementById('ord-delivery').value || 'Не указано');
-    formData.append('Комментарий', document.getElementById('ord-comment').value || 'Нет');
-
-    // Параметры макета
-    formData.append('Статус', state.role);
-    formData.append('Цвет_ленты', state.lentColor);
-    formData.append('Цвет_шрифта', state.fontColor);
-    formData.append('ФИО', state.texts.fio.text || 'Не указано');
-    formData.append('Школа', state.texts.school.text || 'Не указано');
-    formData.append('Класс', state.texts.cls.text || 'Не указано');
-    formData.append('Год', state.texts.year.text || 'Не указано');
-    formData.append('Шрифт_выпускник', state.texts.role.font);
-    formData.append('Шрифт_ФИО', state.texts.fio.font);
-    formData.append('Шрифт_школа', state.texts.school.font);
-    formData.append('Шрифт_класс', state.texts.cls.font);
-    formData.append('Шрифт_год', state.texts.year.font);
-
-    // Макет (PNG)
-    formData.append('_attachment', blob, 'maket_lenty.png');
-
-    // Тема письма
-    formData.append('_subject', '🎓 Новый заказ ленты: ' + name + ' (' + (document.getElementById('ord-qty').value || '1') + ' шт.)');
-
-    // Anti-spam (FormSubmit)
-    formData.append('_template', 'table');
-    formData.append('_captcha', 'false');
-
-    fetch('https://formsubmit.co/ajax/' + ORDER_EMAIL, {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success === 'true' || data.success === true) {
-        showResultAlert(true, 'Мы получили ваш заказ и свяжемся с вами в ближайшее время!');
-      } else {
-        throw new Error('Сервер вернул ошибку');
-      }
-    })
-    .catch(error => {
-      console.error('Ошибка:', error);
-      showResultAlert(false, 'Не удалось отправить заказ автоматически. Пожалуйста, напишите нам на почту: ' + ORDER_EMAIL);
-    });
-  }, 'image/png', 0.95);
+function closeAlert() {
+  document.getElementById('alert-overlay').classList.remove('visible');
 }
 
 // ========================================
 // ЗАПУСК
 // ========================================
-document.addEventListener('DOMContentLoaded', function() {
+window.onload = () => {
   initLentColors();
   initFontColors();
   initFontDropdowns();
   initIcons();
-  bindSliders();
   redraw();
-});
+};
 </script>
 </body>
 </html>

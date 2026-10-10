@@ -195,4 +195,767 @@
   }
   .alert-box .icon { font-size: 48px; margin-bottom: 12px; }
   .alert-box h3 { font-size: 18px; margin-bottom: 8px; border: none; color: #333; }
-  .alert-box p { font-size: 14px;
+  .alert-box p { font-size: 14px; color: #666; margin-bottom: 16px; }
+  .alert-box button {
+    padding: 10px 24px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .alert-box button:hover { background: #0056b3; }
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e0e0e0;
+    border-top-color: #007bff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 900px) {
+    body { flex-direction: column; }
+    .panel { width: 100%; min-width: 100%; max-height: none; }
+    .preview-area { padding: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== ЛЕВАЯ ПАНЕЛЬ ===== -->
+<div class="panel">
+  <h2>🎓 Конструктор лент</h2>
+
+  <!-- Роль -->
+  <h3>Статус</h3>
+  <div class="role-toggle">
+    <button id="role-grad" onclick="setRole('ВЫПУСКНИК')">ВЫПУСКНИК</button>
+    <button id="role-gradnitsa" class="active" onclick="setRole('ВЫПУСКНИЦА')">ВЫПУСКНИЦА</button>
+  </div>
+
+  <!-- Цвет ленты -->
+  <h3>Цвет ленты</h3>
+  <div class="color-grid" id="lent-colors"></div>
+
+  <!-- Цвет шрифта -->
+  <h3>Цвет шрифта</h3>
+  <div class="color-grid" id="font-colors"></div>
+
+  <!-- Картинка -->
+  <h3>Картинка</h3>
+  <div class="icon-grid" id="icon-list"></div>
+  <div class="field-block">
+    <label>Размер картинки</label>
+    <div class="slider-row">
+      <input type="range" id="img-size" min="20" max="200" value="200">
+      <span id="img-size-val">200</span>
+    </div>
+    <label>Позиция X</label>
+    <div class="slider-row">
+      <input type="range" id="img-x" min="-600" max="600" value="0">
+      <span id="img-x-val">0</span>
+    </div>
+    <label>Позиция Y</label>
+    <div class="slider-row">
+      <input type="range" id="img-y" min="-100" max="100" value="0">
+      <span id="img-y-val">0</span>
+    </div>
+  </div>
+
+  <!-- ВЫПУСКНИК -->
+  <div class="field-block">
+    <h3 style="margin-top:0;border:none">ВЫПУСКНИК / ВЫПУСКНИЦА</h3>
+    <label>Шрифт</label>
+    <select id="font-role"></select>
+    <label>Размер</label>
+    <div class="slider-row">
+      <input type="range" id="size-role" min="10" max="200" value="100">
+      <span id="size-role-val">100</span>
+    </div>
+    <label>Позиция X</label>
+    <div class="slider-row">
+      <input type="range" id="x-role" min="0" max="1200" value="233">
+      <span id="x-role-val">233</span>
+    </div>
+    <label>Позиция Y</label>
+    <div class="slider-row">
+      <input type="range" id="y-role" min="0" max="200" value="142">
+      <span id="y-role-val">142</span>
+    </div>
+  </div>
+
+  <!-- ФИО -->
+  <div class="field-block">
+    <h3 style="margin-top:0;border:none">ФИО</h3>
+    <input type="text" id="text-fio" placeholder="Иванов Иван Иванович" value="Петрова Марина" oninput="redraw()">
+    <label>Шрифт</label>
+    <select id="font-fio"></select>
+    <label>Размер</label>
+    <div class="slider-row">
+      <input type="range" id="size-fio" min="10" max="200" value="39">
+      <span id="size-fio-val">39</span>
+    </div>
+    <label>Позиция X</label>
+    <div class="slider-row">
+      <input type="range" id="x-fio" min="0" max="1200" value="458">
+      <span id="x-fio-val">458</span>
+    </div>
+    <label>Позиция Y</label>
+    <div class="slider-row">
+      <input type="range" id="y-fio" min="0" max="200" value="40">
+      <span id="y-fio-val">40</span>
+    </div>
+  </div>
+
+  <!-- Школа -->
+  <div class="field-block">
+    <h3 style="margin-top:0;border:none">Школа</h3>
+    <input type="text" id="text-school" placeholder="МБОУ СОШ №1" value="МБОУ СОШ №96 г.о.Самара" oninput="redraw()">
+    <label>Шрифт</label>
+    <select id="font-school"></select>
+    <label>Размер</label>
+    <div class="slider-row">
+      <input type="range" id="size-school" min="10" max="200" value="31">
+      <span id="size-school-val">31</span>
+    </div>
+    <label>Позиция X</label>
+    <div class="slider-row">
+      <input type="range" id="x-school" min="0" max="1200" value="546">
+      <span id="x-school-val">546</span>
+    </div>
+    <label>Позиция Y</label>
+    <div class="slider-row">
+      <input type="range" id="y-school" min="0" max="200" value="179">
+      <span id="y-school-val">179</span>
+    </div>
+  </div>
+
+  <!-- Класс -->
+  <div class="field-block">
+    <h3 style="margin-top:0;border:none">Класс</h3>
+    <input type="text" id="text-cls" placeholder='9 «В»' value="11«А» класс" oninput="redraw()">
+    <label>Шрифт</label>
+    <select id="font-cls"></select>
+    <label>Размер</label>
+    <div class="slider-row">
+      <input type="range" id="size-cls" min="10" max="200" value="31">
+      <span id="size-cls-val">31</span>
+    </div>
+    <label>Позиция X</label>
+    <div class="slider-row">
+      <input type="range" id="x-cls" min="0" max="1200" value="285">
+      <span id="x-cls-val">285</span>
+    </div>
+    <label>Позиция Y</label>
+    <div class="slider-row">
+      <input type="range" id="y-cls" min="0" max="200" value="179">
+      <span id="y-cls-val">179</span>
+    </div>
+  </div>
+
+  <!-- Год -->
+  <div class="field-block">
+    <h3 style="margin-top:0;border:none">Год</h3>
+    <input type="text" id="text-year" placeholder="2026" value="2027" oninput="redraw()">
+    <label>Шрифт</label>
+    <select id="font-year"></select>
+    <label>Размер</label>
+    <div class="slider-row">
+      <input type="range" id="size-year" min="10" max="200" value="100">
+      <span id="size-year-val">100</span>
+    </div>
+    <label>Позиция X</label>
+    <div class="slider-row">
+      <input type="range" id="x-year" min="0" max="1200" value="985">
+      <span id="x-year-val">985</span>
+    </div>
+    <label>Позиция Y</label>
+    <div class="slider-row">
+      <input type="range" id="y-year" min="0" max="200" value="135">
+      <span id="y-year-val">135</span>
+    </div>
+  </div>
+
+  <!-- Форма заказа -->
+  <h3>Данные для заказа</h3>
+  <div class="field-block">
+    <label>Ваше имя *</label>
+    <input type="text" id="ord-name" placeholder="Как к вам обращаться">
+    <label>Телефон *</label>
+    <input type="tel" id="ord-phone" placeholder="+7 (___) ___-__-__">
+    <label>Email</label>
+    <input type="email" id="ord-email" placeholder="example@mail.ru">
+    <label>Количество (шт.)</label>
+    <input type="number" id="ord-qty" value="1" min="1">
+    <label>Доставка</label>
+    <select id="ord-delivery">
+      <option value="Самовывоз (Самара)">Самовывоз (Самара)</option>
+      <option value="СДЭК">СДЭК</option>
+      <option value="Почта России">Почта России</option>
+      <option value="Курьер по Самаре">Курьер по Самаре</option>
+    </select>
+    <label>Комментарий</label>
+    <textarea id="ord-comment" rows="2" placeholder="Пожелания к заказу"></textarea>
+  </div>
+
+  <button id="btn-send" class="btn-send" onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
+</div>
+
+<!-- ===== ОБЛАСТЬ ПРЕВЬЮ ===== -->
+<div class="preview-area">
+  <canvas id="canvas" width="1200" height="200"></canvas>
+</div>
+
+<!-- ===== АЛЕРТ ===== -->
+<div class="alert-overlay" id="alert-overlay">
+  <div class="alert-box" id="alert-box">
+    <div class="icon" id="alert-icon">⏳</div>
+    <h3 id="alert-title">Отправка заказа...</h3>
+    <p id="alert-text">Пожалуйста, подождите.</p>
+    <button id="alert-btn" onclick="closeAlert()" style="display:none">OK</button>
+  </div>
+</div>
+
+<script>
+// ========================================
+// НАСТРОЙКИ (редактируйте здесь)
+// ========================================
+
+// Почта для заказов
+const ORDER_EMAIL = 'maryak250377@gmail.com';
+
+// Цвета ленты (HEX-коды)
+const lentColorList = [
+  '#C8102E', '#E63946', '#1D3557', '#2A6F97', '#4688F1', '#588157',
+  '#90A955', '#F4A261', '#F1C40F', '#8E44AD', '#000000', '#2C3E50',
+  '#7D3C98', '#117A65', '#A93226', '#FF8C00', '#008080', '#4A235A'
+];
+
+// Цвета шрифта (HEX-код + название)
+const fontColorList = [
+  {c:'#FFD700', n:'Золото'},
+  {c:'#C0C0C0', n:'Серебро'},
+  {c:'#FFFFFF', n:'Белый'},
+  {c:'#000000', n:'Чёрный'},
+  {c:'#8B0000', n:'Бордовый'},
+  {c:'#000080', n:'Синий'},
+  {c:'#FF00FF', n:'Пурпурный'},
+  {c:'#006400', n:'Тёмно-зелёный'}
+];
+
+// Шрифты (названия)
+const fontList = [
+  'Arial', 'Georgia', 'Impact', 'Verdana', 'Tahoma',
+  'Times New Roman', 'Courier New', 'Comic Sans MS',
+  'Trebuchet MS', 'Palatino Linotype', 'Lucida Console'
+];
+
+// Картинки (встроенные иконки + файлы)
+// Для своих картинок добавьте: {type:'file', src:'img/logo1.png', name:'Логотип 1'}
+const iconList = [
+  {type:'draw', name:'Колокольчик', drawFn:'bell'},
+  {type:'draw', name:'Шапочка',     drawFn:'cap'},
+  {type:'draw', name:'Звезда',       drawFn:'star'},
+  {type:'draw', name:'Сердце',       drawFn:'heart'},
+  {type:'none', name:'Без картинки'}
+];
+
+// ========================================
+// СОСТОЯНИЕ
+// ========================================
+let state = {
+  role: 'ВЫПУСКНИЦА',
+  lentColor: '#C8102E',
+  fontColor: '#FFD700',
+  icon: iconList,
+  imgSize: 200,
+  imgX: 0,
+  imgY: 0,
+  texts: {
+    role:  {font:'Arial',  size:100, x:233, y:142},
+    fio:   {font:'Arial',  size:39,  x:458, y:40,  text:'Петрова Марина'},
+    school:{font:'Arial',  size:31,  x:546, y:179, text:'МБОУ СОШ №96 г.о.Самара'},
+    cls:   {font:'Arial',  size:31,  x:285, y:179, text:'11"А" класс'},
+    year:  {font:'Arial',  size:100, x:985, y:135, text:'2027'}
+  }
+};
+
+// ========================================
+// РИСОВАНИЕ ИКОНОК
+// ========================================
+function drawIcon(ctx, name, cx, cy, size) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  const s = size / 2;
+  ctx.fillStyle = state.fontColor;
+  ctx.strokeStyle = state.fontColor;
+  ctx.lineWidth = 2;
+
+  if (name === 'bell') {
+    // Колокол
+    ctx.beginPath();
+    ctx.moveTo(-s*0.6, s*0.3);
+    ctx.lineTo(s*0.6, s*0.3);
+    ctx.lineTo(s*0.5, -s*0.2);
+    ctx.quadraticCurveTo(0, -s*0.8, -s*0.5, -s*0.2);
+    ctx.closePath();
+    ctx.fill();
+    // Язычок
+    ctx.beginPath();
+    ctx.arc(0, s*0.45, s*0.15, 0, Math.PI*2);
+    ctx.fill();
+    // Верх
+    ctx.beginPath();
+    ctx.arc(0, -s*0.35, s*0.08, 0, Math.PI*2);
+    ctx.fill();
+  } else if (name === 'cap') {
+    // Шапочка выпускника
+    ctx.beginPath();
+    ctx.moveTo(-s, 0);
+    ctx.lineTo(0, -s*0.4);
+    ctx.lineTo(s, 0);
+    ctx.lineTo(0, s*0.4);
+    ctx.closePath();
+    ctx.fill();
+    // Нижняя часть
+    ctx.fillRect(-s*0.3, 0, s*0.6, s*0.3);
+    // Кисточка
+    ctx.beginPath();
+    ctx.moveTo(s*0.8, -s*0.1);
+    ctx.lineTo(s*0.9, s*0.3);
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(s*0.9, s*0.35, s*0.08, 0, Math.PI*2);
+    ctx.fill();
+  } else if (name === 'star') {
+    // Звезда
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const r = i % 2 === 0 ? s : s * 0.4;
+      const a = (Math.PI / 5) * i - Math.PI / 2;
+      const x = Math.cos(a) * r;
+      const y = Math.sin(a) * r;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+  } else if (name === 'heart') {
+    // Сердце
+    ctx.beginPath();
+    ctx.moveTo(0, s*0.3);
+    ctx.bezierCurveTo(-s, -s*0.3, -s*0.5, -s, 0, -s*0.3);
+    ctx.bezierCurveTo(s*0.5, -s, s, -s*0.3, 0, s*0.3);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ========================================
+// ОТРИСОВКА ЛЕНТЫ
+// ========================================
+function redraw() {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+
+  // Фон-лента
+  ctx.fillStyle = state.lentColor;
+  ctx.fillRect(0, 0, W, H);
+
+  // Лёгкий градиент для объёма
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, 'rgba(255,255,255,0.12)');
+  grad.addColorStop(0.5, 'rgba(255,255,255,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.15)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Боковые линии (кант)
+  ctx.strokeStyle = state.fontColor;
+  ctx.globalAlpha = 0.3;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(4, 4, W - 8, H - 8);
+  ctx.globalAlpha = 1;
+
+  // Текст цвет
+  ctx.fillStyle = state.fontColor;
+
+  // ВЫПУСКНИК / ВЫПУСКНИЦА
+  ctx.font = 'bold ' + state.texts.role.size + 'px ' + state.texts.role.font;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(state.role, state.texts.role.x, state.texts.role.y);
+
+  // ФИО
+  if (state.texts.fio.text) {
+    ctx.font = state.texts.fio.size + 'px ' + state.texts.fio.font;
+    ctx.fillText(state.texts.fio.text, state.texts.fio.x, state.texts.fio.y);
+  }
+
+  // Школа
+  if (state.texts.school.text) {
+    ctx.font = state.texts.school.size + 'px ' + state.texts.school.font;
+    ctx.fillText(state.texts.school.text, state.texts.school.x, state.texts.school.y);
+  }
+
+  // Класс
+  if (state.texts.cls.text) {
+    ctx.font = state.texts.cls.size + 'px ' + state.texts.cls.font;
+    ctx.fillText(state.texts.cls.text, state.texts.cls.x, state.texts.cls.y);
+  }
+
+  // Год
+  if (state.texts.year.text) {
+    ctx.font = 'bold ' + state.texts.year.size + 'px ' + state.texts.year.font;
+    ctx.fillText(state.texts.year.text, state.texts.year.x, state.texts.year.y);
+  }
+
+  // Картинка
+  if (state.icon) {
+    if (state.icon.type === 'draw') {
+      drawIcon(ctx, state.icon.drawFn, state.imgX + state.imgSize/2, state.imgY + state.imgSize/2, state.imgSize);
+    } else if (state.icon.type === 'file' && state.icon.img) {
+      ctx.drawImage(state.icon.img, state.imgX, state.imgY, state.imgSize, state.imgSize);
+    }
+  }
+}
+
+// ========================================
+// ИНИЦИАЛИЗАЦИЯ ЦВЕТОВ ЛЕНТЫ
+// ========================================
+function initLentColors() {
+  const container = document.getElementById('lent-colors');
+  container.innerHTML = '';
+  lentColorList.forEach((color, i) => {
+    const sw = document.createElement('div');
+    sw.className = 'color-swatch';
+    sw.style.background = color;
+    if (color === state.lentColor) sw.classList.add('active');
+    sw.onclick = () => {
+      state.lentColor = color;
+      document.querySelectorAll('#lent-colors .color-swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+      redraw();
+    };
+    container.appendChild(sw);
+  });
+}
+
+// ========================================
+// ИНИЦИАЛИЗАЦИЯ ЦВЕТОВ ШРИФТА
+// ========================================
+function initFontColors() {
+  const container = document.getElementById('font-colors');
+  container.innerHTML = '';
+  fontColorList.forEach((item, i) => {
+    const sw = document.createElement('div');
+    sw.className = 'color-swatch';
+    sw.style.background = item.c;
+    sw.title = item.n;
+    if (item.c === state.fontColor) sw.classList.add('active');
+    sw.onclick = () => {
+      state.fontColor = item.c;
+      document.querySelectorAll('#font-colors .color-swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+      redraw();
+    };
+    container.appendChild(sw);
+  });
+}
+
+// ========================================
+// ИНИЦИАЛИЗАЦИЯ ВЫПАДАЮЩИХ ШРИФТОВ
+// ========================================
+function initFontDropdowns() {
+  const ids = ['font-role','font-fio','font-school','font-cls','font-year'];
+  ids.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = '';
+    fontList.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f;
+      opt.textContent = f;
+      opt.style.fontFamily = f;
+      sel.appendChild(opt);
+    });
+  });
+  // Устанавливаем начальные
+  document.getElementById('font-role').value = state.texts.role.font;
+  document.getElementById('font-fio').value = state.texts.fio.font;
+  document.getElementById('font-school').value = state.texts.school.font;
+  document.getElementById('font-cls').value = state.texts.cls.font;
+  document.getElementById('font-year').value = state.texts.year.font;
+}
+
+// ========================================
+// ИНИЦИАЛИЗАЦИЯ ИКОНОК
+// ========================================
+function initIcons() {
+  const container = document.getElementById('icon-list');
+  if (!container) {
+    console.error('Контейнер для иконок не найден! Проверь id="icon-list" в HTML');
+    return;
+  }
+
+  container.innerHTML = '';
+
+  // 1. Добавляем встроенные иконки
+  iconList.forEach(icon => {
+    const btn = document.createElement('div');
+    btn.className = 'icon-btn';
+    btn.innerHTML = `<span style="font-size:24px; color:${state.fontColor}">•</span><br><small>${icon.name}</small>`;
+    btn.onclick = () => {
+      state.icon = icon;
+      document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      redraw();
+    };
+    container.appendChild(btn);
+  });
+
+  // 2. Добавляем файлы из папки img (если они есть)
+  // Важно: GitHub Pages чувствителен к регистру. Имена файлов должны совпадать точно.
+  const files = [
+    'Gerb.png',
+    'Kolokolchik1.png',
+    'Kolokolchik2.png'
+  ];
+
+  files.forEach(fileName => {
+    const img = new Image();
+    img.src = `img/\${fileName}`;
+    
+    img.onload = () => {
+      const btn = document.createElement('div');
+      btn.className = 'icon-btn';
+      btn.innerHTML = `<img src="img/${fileName}" alt="${fileName}" style="max-width:100%; max-height:100%; object-fit:contain;">`;
+      btn.onclick = () => {
+        state.icon = {type:'file', src:`img/\${fileName}`, img: img, name: fileName.replace('.png','')};
+        document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        redraw();
+      };
+      container.appendChild(btn);
+    };
+
+    img.onerror = () => {
+      console.warn(`Файл \${fileName} не найден в папке img. Он не будет отображаться.`);
+    };
+  });
+}
+
+// ========================================
+// УСТАНОВКА РОЛИ
+// ========================================
+function setRole(r) {
+  state.role = r;
+  document.getElementById('role-grad').classList.toggle('active', r === 'ВЫПУСКНИК');
+  document.getElementById('role-gradnitsa').classList.toggle('active', r === 'ВЫПУСКНИЦА');
+  redraw();
+}
+
+// ========================================
+// СЛАЙДЕРЫ
+// ========================================
+function bindSliders() {
+  // Картинка
+  ['img-size','img-x','img-y'].forEach(id => {
+    const el = document.getElementById(id);
+    const val = document.getElementById(id + '-val');
+    el.oninput = () => {
+      val.textContent = el.value;
+      if (id === 'img-size') state.imgSize = +el.value;
+      if (id === 'img-x') state.imgX = +el.value;
+      if (id === 'img-y') state.imgY = +el.value;
+      redraw();
+    };
+  });
+
+  // Текстовые элементы
+  const elements = [
+    {key:'role',  sizeId:'size-role',  xId:'x-role',  yId:'y-role',  fontId:'font-role'},
+    {key:'fio',   sizeId:'size-fio',   xId:'x-fio',   yId:'y-fio',   fontId:'font-fio'},
+    {key:'school',sizeId:'size-school',xId:'x-school',yId:'y-school',fontId:'font-school'},
+    {key:'cls',   sizeId:'size-cls',   xId:'x-cls',   yId:'y-cls',   fontId:'font-cls'},
+    {key:'year',  sizeId:'size-year',  xId:'x-year',  yId:'y-year',  fontId:'font-year'}
+  ];
+
+  elements.forEach(e => {
+    // Размер
+    const sizeEl = document.getElementById(e.sizeId);
+    const sizeVal = document.getElementById(e.sizeId + '-val');
+    sizeEl.oninput = () => {
+      sizeVal.textContent = sizeEl.value;
+      state.texts[e.key].size = +sizeEl.value;
+      redraw();
+    };
+    // X
+    const xEl = document.getElementById(e.xId);
+    const xVal = document.getElementById(e.xId + '-val');
+    xEl.oninput = () => {
+      xVal.textContent = xEl.value;
+      state.texts[e.key].x = +xEl.value;
+      redraw();
+    };
+    // Y
+    const yEl = document.getElementById(e.yId);
+    const yVal = document.getElementById(e.yId + '-val');
+    yEl.oninput = () => {
+      yVal.textContent = yEl.value;
+      state.texts[e.key].y = +yEl.value;
+      redraw();
+    };
+    // Шрифт
+    const fontEl = document.getElementById(e.fontId);
+    fontEl.onchange = () => {
+      state.texts[e.key].font = fontEl.value;
+      redraw();
+    };
+  });
+
+  // Текстовые поля
+  document.getElementById('text-fio').oninput = function() {
+    state.texts.fio.text = this.value;
+    redraw();
+  };
+  document.getElementById('text-school').oninput = function() {
+    state.texts.school.text = this.value;
+    redraw();
+  };
+  document.getElementById('text-cls').oninput = function() {
+    state.texts.cls.text = this.value;
+    redraw();
+  };
+  document.getElementById('text-year').oninput = function() {
+    state.texts.year.text = this.value;
+    redraw();
+  };
+}
+
+// ========================================
+// АЛЕРТЫ
+// ========================================
+function showAlert(icon, title, text, showBtn) {
+  document.getElementById('alert-icon').textContent = icon;
+  document.getElementById('alert-title').textContent = title;
+  document.getElementById('alert-text').textContent = text;
+  document.getElementById('alert-btn').style.display = showBtn ? 'inline-block' : 'none';
+  document.getElementById('alert-overlay').classList.add('visible');
+}
+function showLoadingAlert() {
+  document.getElementById('alert-box').innerHTML = '<div class="spinner"></div><h3>Отправка заказа...</h3><p>Пожалуйста, подождите.</p>';
+  document.getElementById('alert-overlay').classList.add('visible');
+}
+function showResultAlert(success, msg) {
+  document.getElementById('alert-box').innerHTML = 
+    '<div class="icon">' + (success ? '✅' : '❌') + '</div>' +
+    '<h3>' + (success ? 'Заказ отправлен!' : 'Ошибка отправки') + '</h3>' +
+    '<p>' + msg + '</p>' +
+    '<button onclick="closeAlert()">OK</button>';
+  document.getElementById('alert-overlay').classList.add('visible');
+}
+function closeAlert() {
+  document.getElementById('alert-overlay').classList.remove('visible');
+}
+
+// ========================================
+// ОТПРАВКА ЗАКАЗА
+// ========================================
+function sendOrder() {
+  // Проверка обязательных полей
+  const name = document.getElementById('ord-name').value.trim();
+  const phone = document.getElementById('ord-phone').value.trim();
+
+  if (!name) {
+    showResultAlert(false, 'Пожалуйста, укажите ваше имя.');
+    return;
+  }
+  if (!phone) {
+    showResultAlert(false, 'Пожалуйста, укажите телефон.');
+    return;
+  }
+
+  showLoadingAlert();
+
+  const canvas = document.getElementById('canvas');
+  canvas.toBlob(function(blob) {
+    if (!blob) {
+      showResultAlert(false, 'Не удалось создать файл макета. Попробуйте ещё раз.');
+      return;
+    }
+
+    const formData = new FormData();
+
+    // Данные заказа
+    formData.append('Имя', name);
+    formData.append('Телефон', phone);
+    formData.append('Email', document.getElementById('ord-email').value || 'Не указан');
+    formData.append('Количество', document.getElementById('ord-qty').value || '1');
+    formData.append('Доставка', document.getElementById('ord-delivery').value || 'Не указано');
+    formData.append('Комментарий', document.getElementById('ord-comment').value || 'Нет');
+
+    // Параметры макета
+    formData.append('Статус', state.role);
+    formData.append('Цвет_ленты', state.lentColor);
+    formData.append('Цвет_шрифта', state.fontColor);
+    formData.append('ФИО', state.texts.fio.text || 'Не указано');
+    formData.append('Школа', state.texts.school.text || 'Не указано');
+    formData.append('Класс', state.texts.cls.text || 'Не указано');
+    formData.append('Год', state.texts.year.text || 'Не указано');
+    formData.append('Шрифт_выпускник', state.texts.role.font);
+    formData.append('Шрифт_ФИО', state.texts.fio.font);
+    formData.append('Шрифт_школа', state.texts.school.font);
+    formData.append('Шрифт_класс', state.texts.cls.font);
+    formData.append('Шрифт_год', state.texts.year.font);
+
+    // Макет (PNG)
+    formData.append('_attachment', blob, 'maket_lenty.png');
+
+    // Тема письма
+    formData.append('_subject', '🎓 Новый заказ ленты: ' + name + ' (' + (document.getElementById('ord-qty').value || '1') + ' шт.)');
+
+    // Anti-spam (FormSubmit)
+    formData.append('_template', 'table');
+    formData.append('_captcha', 'false');
+
+    fetch('https://formsubmit.co/ajax/' + ORDER_EMAIL, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success === 'true' || data.success === true) {
+        showResultAlert(true, 'Мы получили ваш заказ и свяжемся с вами в ближайшее время!');
+      } else {
+        throw new Error('Сервер вернул ошибку');
+      }
+    })
+    .catch(error => {
+      console.error('Ошибка:', error);
+      showResultAlert(false, 'Не удалось отправить заказ автоматически. Пожалуйста, напишите нам на почту: ' + ORDER_EMAIL);
+    });
+  }, 'image/png', 0.95);
+}
+
+// ========================================
+// ЗАПУСК
+// ========================================
+document.addEventListener('DOMContentLoaded', function() {
+  initLentColors();
+  initFontColors();
+  initFontDropdowns();
+  initIcons();
+  bindSliders();
+  redraw();
+});
+</script>
+</body>
+</html>

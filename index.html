@@ -703,57 +703,81 @@ function initFontDropdowns() {
 // ========================================
 // ИНИЦИАЛИЗАЦИЯ ИКОНОК
 // ========================================
-function initIcons() {
+// ИНИЦИАЛИЗАЦИЯ ИКОНОК
+// ========================================
+async function initIcons() {
   const container = document.getElementById('icon-list');
   container.innerHTML = '';
-  iconList.forEach((item, i) => {
-    const btn = document.createElement('div');
-    btn.className = 'icon-btn';
-    if (i === 0) btn.classList.add('active');
-    btn.title = item.name;
+  
+  // Получаем список файлов из папки img
+  try {
+    const response = await fetch('img/');
+    const files = await response.json();
+    const folderIcons = files.map(file => ({
+      type: 'file',
+      src: `img/${file}`,
+      name: file.replace(/\.[^/.]+$/, '')
+    }));
+    
+    // Объединяем с существующими иконками
+    const allIcons = [
+      {type:'draw', name:'Колокольчик', drawFn:'bell'},
+      {type:'draw', name:'Шапочка', drawFn:'cap'},
+      {type:'draw', name:'Звезда', drawFn:'star'},
+      {type:'draw', name:'Сердце', drawFn:'heart'},
+      {type:'none', name:'Без картинки'}
+    ].concat(folderIcons);
+    
+    // Создаем кнопки для каждой иконки
+    allIcons.forEach((item, i) => {
+      const btn = document.createElement('div');
+      btn.className = 'icon-btn';
+      if (i === 0) btn.classList.add('active');
+      btn.title = item.name;
 
-    if (item.type === 'none') {
-      btn.textContent = '✕';
-      btn.style.fontSize = '18px';
-      btn.style.color = '#999';
-    } else if (item.type === 'draw') {
-      const c = document.createElement('canvas');
-      c.width = 40; c.height = 40;
-      const ctx = c.getContext('2d');
-      // Рисуем иконку в чёрном (превью)
-      const savedColor = state.fontColor;
-      state.fontColor = '#333';
-      drawIcon(ctx, item.drawFn, 20, 20, 32);
-      state.fontColor = savedColor;
-      btn.appendChild(c);
-    } else if (item.type === 'file') {
-      const img = document.createElement('img');
-      img.src = item.src;
-      img.alt = item.name;
-      btn.appendChild(img);
-      // Загружаем для канваса
-      const realImg = new Image();
-      realImg.onload = () => { item.img = realImg; };
-      realImg.src = item.src;
-    }
-
-    btn.onclick = () => {
       if (item.type === 'none') {
-        state.icon = null;
-      } else {
-        state.icon = item;
-        if (item.type === 'file' && !item.img) {
-          const img = new Image();
-          img.onload = () => { item.img = img; redraw(); };
-          img.src = item.src;
-        }
+        btn.textContent = '✕';
+        btn.style.fontSize = '18px';
+        btn.style.color = '#999';
+      } else if (item.type === 'draw') {
+        const c = document.createElement('canvas');
+        c.width = 40; c.height = 40;
+        const ctx = c.getContext('2d');
+        const savedColor = state.fontColor;
+        state.fontColor = '#333';
+        drawIcon(ctx, item.drawFn, 20, 20, 32);
+        state.fontColor = savedColor;
+        btn.appendChild(c);
+      } else if (item.type === 'file') {
+        const img = document.createElement('img');
+        img.src = item.src;
+        img.alt = item.name;
+        btn.appendChild(img);
+        const realImg = new Image();
+        realImg.onload = () => { item.img = realImg; redraw(); };
+        realImg.src = item.src;
       }
-      document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      redraw();
-    };
-    container.appendChild(btn);
-  });
+
+      btn.onclick = () => {
+        if (item.type === 'none') {
+          state.icon = null;
+        } else {
+          state.icon = item;
+          if (item.type === 'file' && !item.img) {
+            const img = new Image();
+            img.onload = () => { item.img = img; redraw(); };
+            img.src = item.src;
+          }
+        }
+        document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        redraw();
+      };
+      container.appendChild(btn);
+    });
+  } catch (error) {
+    console.error('Ошибка при загрузке иконок:', error);
+  }
 }
 
 // ========================================
